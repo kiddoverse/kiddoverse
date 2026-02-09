@@ -42,7 +42,10 @@ export default async function AdminProductsPage() {
         </p>
       </div>
 
-      <section id="create" className="rounded-3xl border border-border/70 bg-surface p-6 shadow-sm">
+      <section
+        id="create"
+        className="mx-auto w-full max-w-5xl rounded-3xl border border-border/70 bg-surface p-6 shadow-sm"
+      >
         <h2 className="text-lg font-semibold">สร้างสินค้าใหม่</h2>
         <form className="mt-4 grid gap-4 sm:grid-cols-2">
           <label className="flex flex-col gap-2 text-sm">
@@ -118,7 +121,7 @@ export default async function AdminProductsPage() {
         </form>
       </section>
 
-      <section className="rounded-3xl border border-border/70 bg-surface p-6 shadow-sm">
+      <section className="mx-auto w-full max-w-5xl rounded-3xl border border-border/70 bg-surface p-6 shadow-sm">
         <h2 className="text-lg font-semibold">รายการสินค้า</h2>
         <div className="mt-4 grid gap-3 text-sm">
           {products.slice(0, 8).map((product) => (

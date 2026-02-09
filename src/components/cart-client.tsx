@@ -42,7 +42,7 @@ export function CartClient({ items }: { items: CartItem[] }) {
   };
 
   return (
-    <div className="grid gap-6 lg:grid-cols-[2fr_1fr]">
+    <div className="mx-auto grid w-full max-w-5xl gap-6 lg:grid-cols-[2fr_1fr]">
       <div className="flex flex-col gap-4">
         <div className="flex flex-wrap items-center justify-between gap-3 rounded-3xl border border-border/70 bg-surface p-4 shadow-sm">
           <div className="text-sm text-foreground/70">

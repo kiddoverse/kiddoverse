@@ -67,7 +67,7 @@ export default async function ProfilePage() {
         </form>
       </div>
 
-      <section className="rounded-3xl border border-border/70 bg-surface p-6 shadow-sm">
+      <section className="mx-auto w-full max-w-5xl rounded-3xl border border-border/70 bg-surface p-6 shadow-sm">
         <h2 className="text-lg font-semibold">สรุปบัญชี</h2>
         <div className="mt-4 grid gap-4 sm:grid-cols-3">
           <div className="rounded-2xl border border-border/70 bg-surface-muted p-4 text-sm">
@@ -85,7 +85,7 @@ export default async function ProfilePage() {
         </div>
       </section>
 
-      <section className="flex flex-col gap-4">
+      <section className="mx-auto flex w-full max-w-5xl flex-col gap-4">
         <h2 className="text-lg font-semibold">คลังสินค้า</h2>
         <PurchasedLibrary />
       </section>

@@ -144,7 +144,7 @@ export function WalletClient({ balance }: { balance: number }) {
   };
 
   return (
-    <div className="flex flex-col gap-6">
+    <div className="mx-auto flex w-full max-w-4xl flex-col gap-6">
       <div className="rounded-3xl border border-border/70 bg-surface p-8 shadow-sm">
         <h2 className="text-lg font-semibold">ยอดคงเหลือ</h2>
         <div className="mt-4 text-4xl font-semibold text-primary">
@@ -243,7 +243,7 @@ export function WalletClient({ balance }: { balance: number }) {
               <X size={18} />
             </button>
 
-            <div className="grid gap-8 lg:grid-cols-[1fr_1fr]">
+            <div className="mx-auto grid w-full max-w-4xl gap-8 lg:grid-cols-[1fr_1fr]">
               {step === 1 ? (
                 <div className="flex flex-col gap-4">
                   <h3 className="text-base font-semibold">
