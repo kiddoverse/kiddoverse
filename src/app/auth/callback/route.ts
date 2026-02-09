@@ -9,6 +9,7 @@ export async function GET(request: Request) {
   const response = NextResponse.redirect(`${origin}/`);
 
   if (code) {
+    console.info("[AuthCallback] Received code");
     const supabase = createServerClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL ?? "",
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? "",
@@ -25,7 +26,14 @@ export async function GET(request: Request) {
         },
       }
     );
-    await supabase.auth.exchangeCodeForSession(code);
+    const { data, error } = await supabase.auth.exchangeCodeForSession(code);
+    if (error) {
+      console.error("[AuthCallback] Exchange failed", error.message);
+    } else {
+      console.info("[AuthCallback] Session set", {
+        hasUser: Boolean(data?.session?.user),
+      });
+    }
   }
 
   return response;

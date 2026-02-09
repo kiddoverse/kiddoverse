@@ -9,12 +9,14 @@ export default function LoginPage() {
   const handleLogin = async (provider: "google" | "facebook") => {
     setLoading(true);
     const supabase = createSupabaseBrowserClient();
+    console.log("[Auth] Start OAuth:", provider);
     await supabase.auth.signInWithOAuth({
       provider,
       options: {
         redirectTo: `${window.location.origin}/auth/callback`,
       },
     });
+    console.log("[Auth] Redirecting to provider:", provider);
     setLoading(false);
   };
 
