@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { Bell, ShoppingCart, Wallet, User } from "lucide-react";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { getUserProfile } from "@/lib/auth";
@@ -70,7 +71,18 @@ export async function Header() {
             href={user ? "/profile" : "/login"}
             className="flex items-center gap-2 rounded-full border border-border/70 bg-surface px-3 py-2 text-sm shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
           >
-            <User size={16} />
+            {user && profile?.avatar_url ? (
+              <span className="relative h-7 w-7 overflow-hidden rounded-full border border-border/70">
+                <Image
+                  src={profile.avatar_url}
+                  alt={profile.display_name ?? "Profile"}
+                  fill
+                  className="object-cover"
+                />
+              </span>
+            ) : (
+              <User size={16} />
+            )}
             <span className="hidden sm:inline">
               {user ? profile?.display_name ?? "โปรไฟล์" : "เข้าสู่ระบบ"}
             </span>
