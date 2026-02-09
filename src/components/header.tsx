@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Bell, ShoppingCart, Wallet } from "lucide-react";
+import { Bell, ShoppingCart } from "lucide-react";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { getUserProfile, isAdmin } from "@/lib/auth";
 import {
@@ -24,9 +24,9 @@ export async function Header() {
     (user?.user_metadata?.picture as string | undefined) ??
     profile?.avatar_url ??
     undefined;
-  const walletBalance = user ? await getWalletBalance(user.id) : 0;
   const cartCount = user ? await getCartCount(user.id) : 0;
   const notifications = user ? await getUnreadNotificationsCount(user.id) : 0;
+  const walletBalance = user ? await getWalletBalance(user.id) : 0;
 
   return (
     <header className="sticky top-0 z-30 border-b border-border/70 bg-surface/80 backdrop-blur">
@@ -45,18 +45,6 @@ export async function Header() {
 
         <div className="flex items-center gap-3">
           <ThemeToggle />
-
-          {showAuth ? (
-            <Link
-              href="/wallet"
-              className="hidden items-center gap-2 rounded-full border border-border/70 bg-surface px-3 py-2 text-sm shadow-sm transition hover:-translate-y-0.5 hover:shadow-md sm:flex"
-            >
-              <Wallet size={16} />
-              <span className="font-semibold">
-                {walletBalance.toLocaleString("th-TH")} ฿
-              </span>
-            </Link>
-          ) : null}
 
           {showAuth ? (
             <Link
@@ -79,7 +67,7 @@ export async function Header() {
             >
               <ShoppingCart size={18} />
               {cartCount > 0 ? (
-                <span className="absolute -right-1 -top-1 grid h-5 w-5 place-items-center rounded-full bg-primary text-xs text-white">
+                <span className="absolute -right-1 -top-1 grid h-5 w-5 place-items-center rounded-full bg-success text-xs font-semibold text-white">
                   {cartCount}
                 </span>
               ) : null}
@@ -91,6 +79,8 @@ export async function Header() {
               displayName={displayName}
               avatarUrl={avatarUrl}
               role={profile?.role ?? "customer"}
+              userId={user.id}
+              walletBalance={walletBalance}
             />
           ) : (
             <Link

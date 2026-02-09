@@ -31,7 +31,7 @@ export function Footer() {
         <div className="flex flex-col gap-3">
           <span className="text-base font-semibold text-foreground">ติดต่อเรา</span>
           <a
-            href="https://m.me/"
+            href={process.env.NEXT_PUBLIC_SUPPORT_LINK || "https://m.me/"}
             className="inline-flex w-fit items-center justify-center rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground shadow-md transition hover:-translate-y-0.5"
             target="_blank"
             rel="noreferrer"
