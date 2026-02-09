@@ -145,7 +145,7 @@ export function WalletClient({ balance }: { balance: number }) {
 
   return (
     <div className="mx-auto flex w-full max-w-4xl flex-col gap-6">
-      <div className="rounded-3xl border border-border/70 bg-surface p-8 shadow-sm">
+      <div className="rounded-3xl border border-border/70 bg-surface p-8 text-center shadow-sm">
         <h2 className="text-lg font-semibold">ยอดคงเหลือ</h2>
         <div className="mt-4 text-4xl font-semibold text-primary">
           {balance.toLocaleString("th-TH")} ฿
@@ -245,11 +245,11 @@ export function WalletClient({ balance }: { balance: number }) {
 
             <div className="mx-auto grid w-full max-w-4xl gap-8 lg:grid-cols-[1fr_1fr]">
               {step === 1 ? (
-                <div className="flex flex-col gap-4">
+                <div className="flex flex-col items-center gap-4 text-center">
                   <h3 className="text-base font-semibold">
                     ขั้นตอน 1: เลือกยอดเติมเงิน
                   </h3>
-                  <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+                  <div className="grid w-full max-w-md grid-cols-2 gap-2 sm:grid-cols-4">
                     {presets.map((preset) => (
                       <button
                         key={preset}
@@ -269,7 +269,7 @@ export function WalletClient({ balance }: { balance: number }) {
                       </button>
                     ))}
                   </div>
-                  <label className="flex flex-col gap-2 text-sm">
+                  <label className="flex w-full max-w-md flex-col gap-2 text-sm">
                     กำหนดเอง
                     <input
                       value={customAmount}
@@ -303,11 +303,11 @@ export function WalletClient({ balance }: { balance: number }) {
               ) : null}
 
               {step === 2 ? (
-                <div className="flex flex-col gap-4">
+                <div className="flex flex-col items-center gap-4 text-center">
                   <h3 className="text-base font-semibold">
                     ขั้นตอน 2: เลือกช่องทางชำระเงิน
                   </h3>
-                  <div className="grid gap-2 sm:grid-cols-2">
+                  <div className="grid w-full max-w-md gap-2 sm:grid-cols-2">
                     <button
                       type="button"
                       onClick={() => setMethod("promptpay")}
@@ -350,20 +350,6 @@ export function WalletClient({ balance }: { balance: number }) {
 
               {step === 3 ? (
                 <div className="flex flex-col gap-6 lg:col-span-2">
-                  <div className="rounded-2xl border border-border/70 bg-surface-muted p-4 text-sm">
-                    ยอดเติมเงิน:{" "}
-                    <span className="font-semibold">
-                      {lockedAmount?.toLocaleString("th-TH")} ฿
-                    </span>
-                    {" • "}
-                    ช่องทาง:{" "}
-                    <span className="font-semibold">
-                      {lockedMethod === "promptpay"
-                        ? "PromptPay"
-                        : "โอนผ่านธนาคาร"}
-                    </span>
-                  </div>
-
                   {lockedMethod === "promptpay" ? (
                     <div className="rounded-3xl border border-border/70 bg-surface p-6 shadow-sm">
                       <div className="flex items-center justify-between">
@@ -382,10 +368,11 @@ export function WalletClient({ balance }: { balance: number }) {
                           className="h-full w-full object-contain"
                         />
                       </div>
-                      <p className="mt-4 text-sm text-foreground/70">
-                        สแกน QR เพื่อเติมเงิน{" "}
-                        {selectedAmount.toLocaleString("th-TH")} ฿ ระบบจะตรวจสอบ
-                        อัตโนมัติภายใน 5 นาที
+                      <div className="mt-4 text-center text-lg font-semibold">
+                        {lockedAmount?.toLocaleString("th-TH")} ฿
+                      </div>
+                      <p className="mt-2 text-center text-sm text-foreground/70">
+                        สแกน QR เพื่อเติมเงิน ระบบจะตรวจสอบอัตโนมัติภายใน 5 นาที
                       </p>
                       <button
                         type="button"
@@ -405,28 +392,19 @@ export function WalletClient({ balance }: { balance: number }) {
                     </div>
                 ) : (
                     <div className="rounded-3xl border border-border/70 bg-surface p-6 shadow-sm">
-                      <h3 className="text-base font-semibold">
-                        เลือกบัญชีธนาคาร
-                      </h3>
-                      <div className="mt-3 grid gap-3 sm:grid-cols-2">
-                        {bankAccounts.map((bank) => (
-                          <button
-                            key={bank.id}
-                            type="button"
-                            onClick={() => setBankId(bank.id)}
-                            className={cn(
-                              "flex items-center gap-3 rounded-2xl border px-3 py-2 text-left text-sm transition",
-                              bankId === bank.id
-                                ? "border-primary bg-primary/10"
-                                : "border-border/70 bg-surface-muted"
-                            )}
-                          >
-                            <span className="relative h-8 w-8 overflow-hidden rounded-full bg-white">
-                              <Image src={bank.iconUrl} alt={bank.bankName} fill />
-                            </span>
-                            <span className="font-semibold">{bank.bankName}</span>
-                          </button>
-                        ))}
+                      <h3 className="text-base font-semibold">เลือกบัญชีธนาคาร</h3>
+                      <div className="mt-3">
+                        <select
+                          value={bankId}
+                          onChange={(event) => setBankId(event.target.value)}
+                          className="w-full rounded-2xl border border-border/70 bg-surface-muted px-3 py-2 text-sm outline-none"
+                        >
+                          {bankAccounts.map((bank) => (
+                            <option key={bank.id} value={bank.id}>
+                              {bank.bankName}
+                            </option>
+                          ))}
+                        </select>
                       </div>
 
                       {selectedBank ? (
@@ -449,6 +427,9 @@ export function WalletClient({ balance }: { balance: number }) {
                             </span>
                             <span>{selectedBank.accountName}</span>
                             <span>{selectedBank.accountNumber}</span>
+                            <div className="mt-2 text-center text-lg font-semibold">
+                              {lockedAmount?.toLocaleString("th-TH")} ฿
+                            </div>
                             <button
                               type="button"
                               onClick={() => setSlipUploaded(true)}
