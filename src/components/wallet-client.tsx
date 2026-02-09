@@ -245,11 +245,11 @@ export function WalletClient({ balance }: { balance: number }) {
 
             <div className="mx-auto grid w-full max-w-4xl gap-8 lg:grid-cols-[1fr_1fr]">
               {step === 1 ? (
-                <div className="flex flex-col items-center gap-4 text-center">
+                <div className="mx-auto flex w-full max-w-md flex-col items-center gap-4 text-center">
                   <h3 className="text-base font-semibold">
                     ขั้นตอน 1: เลือกยอดเติมเงิน
                   </h3>
-                  <div className="grid w-full max-w-md grid-cols-2 gap-2 sm:grid-cols-4">
+                  <div className="grid w-full grid-cols-2 gap-2 sm:grid-cols-4">
                     {presets.map((preset) => (
                       <button
                         key={preset}
@@ -269,7 +269,7 @@ export function WalletClient({ balance }: { balance: number }) {
                       </button>
                     ))}
                   </div>
-                  <label className="flex w-full max-w-md flex-col gap-2 text-sm">
+                  <label className="flex w-full flex-col gap-2 text-sm">
                     กำหนดเอง
                     <input
                       value={customAmount}
@@ -440,6 +440,7 @@ export function WalletClient({ balance }: { balance: number }) {
                             </button>
                             <button
                               type="button"
+                              disabled={!slipUploaded}
                               onClick={() => {
                                 if (activeTopupId) {
                                   updateTopup(activeTopupId, {
@@ -452,7 +453,12 @@ export function WalletClient({ balance }: { balance: number }) {
                                 }
                                 handleCreateBankPending();
                               }}
-                              className="mt-2 w-full rounded-full border border-border/70 bg-surface px-4 py-2 text-xs font-semibold text-foreground/80"
+                              className={cn(
+                                "mt-2 w-full rounded-full border px-4 py-2 text-xs font-semibold transition",
+                                slipUploaded
+                                  ? "border-primary bg-primary text-primary-foreground"
+                                  : "border-border/70 bg-surface-muted text-foreground/50 cursor-not-allowed"
+                              )}
                             >
                               ยืนยันการทำรายการ
                             </button>
