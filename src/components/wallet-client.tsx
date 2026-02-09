@@ -223,7 +223,7 @@ export function WalletClient({ balance }: { balance: number }) {
 
       {showTopup ? (
         <div className="fixed inset-0 z-40 flex items-center justify-center bg-black/50 p-4">
-          <div className="relative w-full max-w-4xl overflow-hidden rounded-3xl bg-surface p-6 shadow-xl">
+          <div className="relative w-full max-w-5xl overflow-hidden rounded-3xl bg-surface p-6 shadow-xl">
             <button
               type="button"
               onClick={() => {
@@ -243,13 +243,13 @@ export function WalletClient({ balance }: { balance: number }) {
               <X size={18} />
             </button>
 
-            <div className="grid gap-6 lg:grid-cols-[1.1fr_1fr]">
+            <div className="grid gap-8 lg:grid-cols-[1fr_1fr]">
               {step === 1 ? (
                 <div className="flex flex-col gap-4">
                   <h3 className="text-base font-semibold">
                     ขั้นตอน 1: เลือกยอดเติมเงิน
                   </h3>
-                  <div className="flex flex-wrap gap-2">
+                  <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
                     {presets.map((preset) => (
                       <button
                         key={preset}
@@ -268,13 +268,16 @@ export function WalletClient({ balance }: { balance: number }) {
                         {preset} ฿
                       </button>
                     ))}
+                  </div>
+                  <label className="flex flex-col gap-2 text-sm">
+                    กำหนดเอง
                     <input
                       value={customAmount}
                       onChange={(event) => setCustomAmount(event.target.value)}
-                      placeholder="กำหนดเอง"
-                      className="w-28 rounded-2xl border border-border/70 bg-surface-muted px-3 py-2 text-sm outline-none"
+                      placeholder="เช่น 200"
+                      className="rounded-2xl border border-border/70 bg-surface-muted px-3 py-2 text-sm outline-none"
                     />
-                  </div>
+                  </label>
                   {!isValidAmount ? (
                     <p className="text-xs text-danger">
                       กรุณากรอกยอดขั้นต่ำ 20 บาท
@@ -304,7 +307,7 @@ export function WalletClient({ balance }: { balance: number }) {
                   <h3 className="text-base font-semibold">
                     ขั้นตอน 2: เลือกช่องทางชำระเงิน
                   </h3>
-                  <div className="flex flex-wrap gap-2">
+                  <div className="grid gap-2 sm:grid-cols-2">
                     <button
                       type="button"
                       onClick={() => setMethod("promptpay")}
@@ -362,117 +365,120 @@ export function WalletClient({ balance }: { balance: number }) {
                   </div>
 
                   {lockedMethod === "promptpay" ? (
-                  <div className="rounded-3xl border border-border/70 bg-surface p-6 shadow-sm">
-                    <div className="flex items-center justify-between">
-                      <h3 className="text-base font-semibold">PromptPay QR</h3>
-                      <div className="flex items-center gap-2 text-xs text-foreground/60">
-                        <Clock size={14} />
-                        {minutes}:{seconds.toString().padStart(2, "0")}
+                    <div className="rounded-3xl border border-border/70 bg-surface p-6 shadow-sm">
+                      <div className="flex items-center justify-between">
+                        <h3 className="text-base font-semibold">PromptPay QR</h3>
+                        <div className="flex items-center gap-2 text-xs text-foreground/60">
+                          <Clock size={14} />
+                          {minutes}:{seconds.toString().padStart(2, "0")}
+                        </div>
                       </div>
+                      <div className="mt-4 w-full overflow-hidden rounded-2xl bg-surface-muted">
+                        <Image
+                          src="https://images.unsplash.com/photo-1524995997946-a1c2e315a42f?auto=format&fit=crop&w=1200&q=80"
+                          alt="PromptPay QR"
+                          width={1200}
+                          height={800}
+                          className="h-full w-full object-contain"
+                        />
+                      </div>
+                      <p className="mt-4 text-sm text-foreground/70">
+                        สแกน QR เพื่อเติมเงิน{" "}
+                        {selectedAmount.toLocaleString("th-TH")} ฿ ระบบจะตรวจสอบ
+                        อัตโนมัติภายใน 5 นาที
+                      </p>
+                      <button
+                        type="button"
+                        onClick={handleStartPromptpay}
+                        disabled={!isValidAmount || promptpayStarted}
+                        className={cn(
+                          "mt-4 w-full rounded-full px-4 py-2 text-sm font-semibold transition",
+                          promptpayStarted
+                            ? "bg-surface-muted text-foreground/60"
+                            : "bg-primary text-primary-foreground"
+                        )}
+                      >
+                        {promptpayStarted
+                          ? "กำลังตรวจสอบยอด..."
+                          : "ยืนยันและเริ่มตรวจสอบยอด"}
+                      </button>
                     </div>
-                    <div className="mt-4 aspect-square overflow-hidden rounded-2xl bg-surface-muted">
-                      <Image
-                        src="https://images.unsplash.com/photo-1524995997946-a1c2e315a42f?auto=format&fit=crop&w=600&q=80"
-                        alt="PromptPay QR"
-                        width={400}
-                        height={400}
-                        className="h-full w-full object-cover"
-                      />
-                    </div>
-                    <p className="mt-4 text-sm text-foreground/70">
-                      สแกน QR เพื่อเติมเงิน{" "}
-                      {selectedAmount.toLocaleString("th-TH")} ฿ ระบบจะตรวจสอบ
-                      อัตโนมัติภายใน 5 นาที
-                    </p>
-                    <button
-                      type="button"
-                      onClick={handleStartPromptpay}
-                      disabled={!isValidAmount || promptpayStarted}
-                      className={cn(
-                        "mt-4 w-full rounded-full px-4 py-2 text-sm font-semibold transition",
-                        promptpayStarted
-                          ? "bg-surface-muted text-foreground/60"
-                          : "bg-primary text-primary-foreground"
-                      )}
-                    >
-                      {promptpayStarted
-                        ? "กำลังตรวจสอบยอด..."
-                        : "ยืนยันและเริ่มตรวจสอบยอด"}
-                    </button>
-                  </div>
                 ) : (
-                  <div className="rounded-3xl border border-border/70 bg-surface p-6 shadow-sm">
-                    <h3 className="text-base font-semibold">
-                      เลือกบัญชีธนาคาร
-                    </h3>
-                    <div className="mt-3 grid gap-3">
-                      {bankAccounts.map((bank) => (
-                        <button
-                          key={bank.id}
-                          type="button"
-                          onClick={() => setBankId(bank.id)}
-                          className={cn(
-                            "flex items-center gap-3 rounded-2xl border px-3 py-2 text-left text-sm transition",
-                            bankId === bank.id
-                              ? "border-primary bg-primary/10"
-                              : "border-border/70 bg-surface-muted"
-                          )}
-                        >
-                          <span className="relative h-8 w-8 overflow-hidden rounded-full bg-white">
-                            <Image src={bank.iconUrl} alt={bank.bankName} fill />
-                          </span>
-                          <span className="font-semibold">{bank.bankName}</span>
-                        </button>
-                      ))}
-                    </div>
+                    <div className="rounded-3xl border border-border/70 bg-surface p-6 shadow-sm">
+                      <h3 className="text-base font-semibold">
+                        เลือกบัญชีธนาคาร
+                      </h3>
+                      <div className="mt-3 grid gap-3 sm:grid-cols-2">
+                        {bankAccounts.map((bank) => (
+                          <button
+                            key={bank.id}
+                            type="button"
+                            onClick={() => setBankId(bank.id)}
+                            className={cn(
+                              "flex items-center gap-3 rounded-2xl border px-3 py-2 text-left text-sm transition",
+                              bankId === bank.id
+                                ? "border-primary bg-primary/10"
+                                : "border-border/70 bg-surface-muted"
+                            )}
+                          >
+                            <span className="relative h-8 w-8 overflow-hidden rounded-full bg-white">
+                              <Image src={bank.iconUrl} alt={bank.bankName} fill />
+                            </span>
+                            <span className="font-semibold">{bank.bankName}</span>
+                          </button>
+                        ))}
+                      </div>
 
-                    {selectedBank ? (
-                      <div className="mt-4 rounded-2xl border border-border/70 bg-surface-muted p-4 text-sm">
-                        <div className="flex items-center gap-3">
-                          <div className="relative h-20 w-20 overflow-hidden rounded-xl bg-white">
+                      {selectedBank ? (
+                        <div className="mt-4 grid gap-4 rounded-2xl border border-border/70 bg-surface-muted p-4 text-sm lg:grid-cols-[1fr_1.2fr]">
+                          <div className="w-full overflow-hidden rounded-xl bg-white">
                             <Image
                               src={selectedBank.qrUrl}
                               alt="QR Code"
-                              fill
-                              className="object-cover"
+                              width={600}
+                              height={600}
+                              className="h-full w-full object-contain"
                             />
                           </div>
-                          <div className="flex flex-col gap-1">
+                          <div className="flex flex-col gap-2">
+                            <span className="text-xs text-foreground/60">
+                              รายละเอียดบัญชี
+                            </span>
                             <span className="font-semibold">
                               {selectedBank.bankName}
                             </span>
                             <span>{selectedBank.accountName}</span>
                             <span>{selectedBank.accountNumber}</span>
+                            <button
+                              type="button"
+                              onClick={() => setSlipUploaded(true)}
+                              className="mt-2 inline-flex items-center gap-2 rounded-full bg-primary px-4 py-2 text-xs font-semibold text-primary-foreground"
+                            >
+                              <Upload size={14} />
+                              {slipUploaded ? "อัปโหลดแล้ว" : "อัปโหลดสลิปโอน"}
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                if (activeTopupId) {
+                                  updateTopup(activeTopupId, {
+                                    slipUploaded: slipUploaded,
+                                    bankAccountId: selectedBank.id,
+                                  });
+                                  setShowTopup(false);
+                                  resetTopup();
+                                  return;
+                                }
+                                handleCreateBankPending();
+                              }}
+                              className="mt-2 w-full rounded-full border border-border/70 bg-surface px-4 py-2 text-xs font-semibold text-foreground/80"
+                            >
+                              ยืนยันการทำรายการ
+                            </button>
                           </div>
                         </div>
-                        <button
-                          type="button"
-                          onClick={() => setSlipUploaded(true)}
-                          className="mt-4 inline-flex items-center gap-2 rounded-full bg-primary px-4 py-2 text-xs font-semibold text-primary-foreground"
-                        >
-                          <Upload size={14} />
-                          {slipUploaded ? "อัปโหลดแล้ว" : "อัปโหลดสลิปโอน"}
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => {
-                            if (activeTopupId) {
-                              updateTopup(activeTopupId, {
-                                slipUploaded: slipUploaded,
-                                bankAccountId: selectedBank.id,
-                              });
-                              setShowTopup(false);
-                              return;
-                            }
-                            handleCreateBankPending();
-                          }}
-                          className="mt-3 w-full rounded-full border border-border/70 bg-surface px-4 py-2 text-xs font-semibold text-foreground/80"
-                        >
-                          ยืนยันการทำรายการ
-                        </button>
-                      </div>
-                    ) : null}
-                  </div>
+                      ) : null}
+                    </div>
                 )}
                 </div>
               ) : null}
