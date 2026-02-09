@@ -5,19 +5,27 @@ import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 
 export function AuthCodeHandler() {
   useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    const code = params.get("code");
+    const url = new URL(window.location.href);
+    const code = url.searchParams.get("code");
+    const hasHash = url.hash && url.hash !== "#_=_";
 
-    if (!code) {
+    const supabase = createSupabaseBrowserClient();
+    if (code) {
+      supabase.auth.exchangeCodeForSession(code).finally(() => {
+        window.location.replace(url.origin + url.pathname);
+      });
       return;
     }
 
-    const supabase = createSupabaseBrowserClient();
-    supabase.auth
-      .exchangeCodeForSession(code)
-      .finally(() => {
-        window.history.replaceState({}, document.title, "/");
-      });
+    supabase.auth.getSession().then(({ data }) => {
+      if (data.session && (hasHash || url.search)) {
+        window.location.replace(url.origin + url.pathname);
+      }
+    });
+
+    if (url.hash === "#_=_") {
+      window.history.replaceState({}, document.title, "/");
+    }
   }, []);
 
   return null;
