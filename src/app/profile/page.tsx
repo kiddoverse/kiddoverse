@@ -24,15 +24,27 @@ export default async function ProfilePage() {
     );
   }
 
+  const displayName =
+    (user.user_metadata?.name as string | undefined) ??
+    (user.user_metadata?.full_name as string | undefined) ??
+    profile?.display_name ??
+    user.email ??
+    "โปรไฟล์";
+  const avatarUrl =
+    (user.user_metadata?.avatar_url as string | undefined) ??
+    (user.user_metadata?.picture as string | undefined) ??
+    profile?.avatar_url ??
+    undefined;
+
   return (
     <div className="mx-auto flex w-full max-w-6xl flex-col gap-8 px-4 py-10 sm:px-6">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center gap-4">
           <div className="relative h-16 w-16 overflow-hidden rounded-full border border-border/70 bg-surface-muted">
-            {profile?.avatar_url ? (
+            {avatarUrl ? (
               <Image
-                src={profile.avatar_url}
-                alt={profile.display_name ?? "Profile"}
+                src={avatarUrl}
+                alt={displayName}
                 fill
                 className="object-cover"
               />
@@ -41,7 +53,7 @@ export default async function ProfilePage() {
           <div className="flex flex-col gap-1">
             <h1 className="text-3xl font-semibold">โปรไฟล์</h1>
             <p className="text-sm text-foreground/70">
-              สวัสดี {profile?.display_name ?? user.email}
+              สวัสดี {displayName}
             </p>
           </div>
         </div>

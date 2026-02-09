@@ -13,6 +13,17 @@ export async function Header() {
   const { user, profile } = await getUserProfile();
   const showAuth = Boolean(user);
   const showAdmin = showAuth && isAdmin(profile);
+  const displayName =
+    (user?.user_metadata?.name as string | undefined) ??
+    (user?.user_metadata?.full_name as string | undefined) ??
+    profile?.display_name ??
+    user?.email ??
+    "โปรไฟล์";
+  const avatarUrl =
+    (user?.user_metadata?.avatar_url as string | undefined) ??
+    (user?.user_metadata?.picture as string | undefined) ??
+    profile?.avatar_url ??
+    undefined;
   const walletBalance = user ? await getWalletBalance(user.id) : 0;
   const cartCount = user ? await getCartCount(user.id) : 0;
   const notifications = user ? await getUnreadNotificationsCount(user.id) : 0;
@@ -77,8 +88,8 @@ export async function Header() {
 
           {showAuth ? (
             <ProfileMenu
-              displayName={profile?.display_name ?? user?.email ?? "โปรไฟล์"}
-              avatarUrl={profile?.avatar_url ?? undefined}
+              displayName={displayName}
+              avatarUrl={avatarUrl}
               role={profile?.role ?? "customer"}
             />
           ) : (
