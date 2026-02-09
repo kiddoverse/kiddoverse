@@ -1,7 +1,7 @@
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 export async function getWalletBalance(userId: string) {
-  const supabase = createSupabaseServerClient();
+  const supabase = await createSupabaseServerClient();
   const { data } = await supabase
     .from("wallets")
     .select("balance")
@@ -12,7 +12,7 @@ export async function getWalletBalance(userId: string) {
 }
 
 export async function getCartCount(userId: string) {
-  const supabase = createSupabaseServerClient();
+  const supabase = await createSupabaseServerClient();
   const { count } = await supabase
     .from("cart_items")
     .select("id", { count: "exact", head: true })
@@ -22,7 +22,7 @@ export async function getCartCount(userId: string) {
 }
 
 export async function getUnreadNotificationsCount(userId: string) {
-  const supabase = createSupabaseServerClient();
+  const supabase = await createSupabaseServerClient();
   const { count } = await supabase
     .from("notifications")
     .select("id", { count: "exact", head: true })
