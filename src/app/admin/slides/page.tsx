@@ -1,6 +1,5 @@
 import Link from "next/link";
 import { getUserProfile, isAdmin } from "@/lib/auth";
-import { SlideManager } from "@/components/admin/slide-manager";
 
 export default async function AdminSlidesPage() {
   const { user, profile } = await getUserProfile();
@@ -34,15 +33,16 @@ export default async function AdminSlidesPage() {
   }
 
   return (
-    <div className="mx-auto flex w-full max-w-6xl flex-col gap-8 px-4 py-10 sm:px-6">
+    <div className="mx-auto flex w-full max-w-6xl flex-col gap-6 px-4 py-10 sm:px-6">
       <div className="flex flex-col gap-2">
         <h1 className="text-3xl font-semibold">จัดการสไลด์</h1>
         <p className="text-sm text-foreground/70">
-          เพิ่ม ลบ แก้ไขสไลด์หน้าแรก พร้อมกำหนดข้อความและปุ่ม
+          เพิ่ม ลบ และแก้ไขสไลด์สำหรับหน้าแรก
         </p>
       </div>
-
-      <SlideManager />
+      <div className="rounded-3xl border border-border/70 bg-surface p-6 text-sm text-foreground/70 shadow-sm">
+        พื้นที่นี้สำหรับจัดการสไลด์หน้าแรก (กำลังพัฒนา)
+      </div>
     </div>
   );
 }

@@ -1,6 +1,5 @@
 import Link from "next/link";
 import { getUserProfile, isAdmin } from "@/lib/auth";
-import { SettingsForm } from "@/components/admin/settings-form";
 
 export default async function AdminSettingsPage() {
   const { user, profile } = await getUserProfile();
@@ -34,15 +33,16 @@ export default async function AdminSettingsPage() {
   }
 
   return (
-    <div className="mx-auto flex w-full max-w-6xl flex-col gap-8 px-4 py-10 sm:px-6">
+    <div className="mx-auto flex w-full max-w-6xl flex-col gap-6 px-4 py-10 sm:px-6">
       <div className="flex flex-col gap-2">
         <h1 className="text-3xl font-semibold">ตั้งค่าระบบ</h1>
         <p className="text-sm text-foreground/70">
-          กำหนดค่าต่างๆ ของระบบ เช่น Support Link และอื่นๆ
+          กำหนดค่า support link และการตั้งค่าระบบอื่นๆ
         </p>
       </div>
-
-      <SettingsForm />
+      <div className="rounded-3xl border border-border/70 bg-surface p-6 text-sm text-foreground/70 shadow-sm">
+        พื้นที่นี้สำหรับตั้งค่าระบบ (กำลังพัฒนา)
+      </div>
     </div>
   );
 }

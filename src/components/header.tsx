@@ -24,9 +24,9 @@ export async function Header() {
     (user?.user_metadata?.picture as string | undefined) ??
     profile?.avatar_url ??
     undefined;
+  const walletBalance = user ? await getWalletBalance(user.id) : 0;
   const cartCount = user ? await getCartCount(user.id) : 0;
   const notifications = user ? await getUnreadNotificationsCount(user.id) : 0;
-  const walletBalance = user ? await getWalletBalance(user.id) : 0;
 
   return (
     <header className="sticky top-0 z-30 border-b border-border/70 bg-surface/80 backdrop-blur">
@@ -67,7 +67,7 @@ export async function Header() {
             >
               <ShoppingCart size={18} />
               {cartCount > 0 ? (
-                <span className="absolute -right-1 -top-1 grid h-5 w-5 place-items-center rounded-full bg-success text-xs font-semibold text-white">
+                <span className="absolute -right-1 -top-1 grid h-5 w-5 place-items-center rounded-full bg-success text-xs text-white">
                   {cartCount}
                 </span>
               ) : null}
@@ -79,7 +79,7 @@ export async function Header() {
               displayName={displayName}
               avatarUrl={avatarUrl}
               role={profile?.role ?? "customer"}
-              userId={user.id}
+              userId={user?.id ?? ""}
               walletBalance={walletBalance}
             />
           ) : (

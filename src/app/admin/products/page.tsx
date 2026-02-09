@@ -1,8 +1,6 @@
 import Link from "next/link";
-import Image from "next/image";
 import { getUserProfile, isAdmin } from "@/lib/auth";
 import { products } from "@/lib/mock-data";
-import { ProductForm } from "@/components/admin/product-form";
 
 export default async function AdminProductsPage() {
   const { user, profile } = await getUserProfile();
@@ -44,48 +42,105 @@ export default async function AdminProductsPage() {
         </p>
       </div>
 
+      <section
+        id="create"
+        className="mx-auto w-full max-w-5xl rounded-3xl border border-border/70 bg-surface p-6 shadow-sm"
+      >
+        <h2 className="text-lg font-semibold">สร้างสินค้าใหม่</h2>
+        <form className="mt-4 grid gap-4 sm:grid-cols-2">
+          <label className="flex flex-col gap-2 text-sm">
+            ชื่อสินค้า
+            <input
+              type="text"
+              placeholder="เช่น Kiddo Pack 01"
+              className="rounded-2xl border border-border/70 bg-surface-muted px-3 py-2"
+            />
+          </label>
+          <label className="flex flex-col gap-2 text-sm">
+            หมวดหมู่
+            <input
+              type="text"
+              placeholder="เช่น สื่อการสอน"
+              className="rounded-2xl border border-border/70 bg-surface-muted px-3 py-2"
+            />
+          </label>
+          <label className="flex flex-col gap-2 text-sm">
+            แท็กคำ
+            <input
+              type="text"
+              placeholder="คั่นด้วยเครื่องหมาย ,"
+              className="rounded-2xl border border-border/70 bg-surface-muted px-3 py-2"
+            />
+          </label>
+          <label className="flex flex-col gap-2 text-sm">
+            แท็กสถานะ (เช่น ยอดนิยม)
+            <input
+              type="text"
+              placeholder="popular"
+              className="rounded-2xl border border-border/70 bg-surface-muted px-3 py-2"
+            />
+          </label>
+          <label className="flex flex-col gap-2 text-sm">
+            ราคาเดิม
+            <input
+              type="number"
+              placeholder="99"
+              className="rounded-2xl border border-border/70 bg-surface-muted px-3 py-2"
+            />
+          </label>
+          <label className="flex flex-col gap-2 text-sm">
+            ราคาลด
+            <input
+              type="number"
+              placeholder="79"
+              className="rounded-2xl border border-border/70 bg-surface-muted px-3 py-2"
+            />
+          </label>
+          <label className="flex flex-col gap-2 text-sm">
+            ไฟล์ภาพ (JPG/PNG)
+            <input
+              type="file"
+              className="rounded-2xl border border-border/70 bg-surface-muted px-3 py-2"
+            />
+          </label>
+          <label className="flex flex-col gap-2 text-sm">
+            ไฟล์ PDF
+            <input
+              type="file"
+              className="rounded-2xl border border-border/70 bg-surface-muted px-3 py-2"
+            />
+          </label>
+          <div className="sm:col-span-2">
+            <button
+              type="button"
+              className="rounded-full bg-primary px-6 py-2 text-sm font-semibold text-primary-foreground shadow-md"
+            >
+              บันทึกสินค้า
+            </button>
+          </div>
+        </form>
+      </section>
+
       <section className="mx-auto w-full max-w-5xl rounded-3xl border border-border/70 bg-surface p-6 shadow-sm">
-        <div className="flex items-center justify-between">
-          <h2 className="text-lg font-semibold">รายการสินค้า</h2>
-          <ProductForm triggerLabel="เพิ่มสินค้าใหม่" />
-        </div>
+        <h2 className="text-lg font-semibold">รายการสินค้า</h2>
         <div className="mt-4 grid gap-3 text-sm">
           {products.slice(0, 8).map((product) => (
             <div
               key={product.id}
-              className="flex items-center gap-4 rounded-2xl border border-border/70 bg-surface-muted px-4 py-3"
+              className="flex flex-col gap-2 rounded-2xl border border-border/70 bg-surface-muted px-4 py-3 sm:flex-row sm:items-center sm:justify-between"
             >
-              <div className="relative h-16 w-16 flex-none overflow-hidden rounded-xl">
-                <Image
-                  src={product.imageUrl}
-                  alt={product.name}
-                  fill
-                  className="object-cover"
-                />
+              <div>
+                <p className="font-semibold">{product.name}</p>
+                <p className="text-xs text-foreground/60">
+                  {product.category} • {product.price} ฿
+                </p>
               </div>
-              <div className="flex flex-1 items-center justify-between gap-4">
-                <div className="flex-1 min-w-0">
-                  <p className="font-semibold truncate">{product.name}</p>
-                  <div className="flex items-center gap-2 text-xs text-foreground/60">
-                    <span>{product.category}</span>
-                    <span>•</span>
-                    <span>
-                      {product.salePrice
-                        ? `${product.salePrice} ฿`
-                        : `${product.price} ฿`}
-                    </span>
-                    <span>•</span>
-                    <span className="rounded-full bg-success/15 px-2 py-0.5 text-success">
-                      {product.status != null ? "เปิดใช้งาน" : "ปิดใช้งาน"}
-                    </span>
-                  </div>
-                </div>
-                <ProductForm
-                  product={product}
-                  triggerLabel="จัดการสินค้า"
-                  variant="outline"
-                />
-              </div>
+              <button
+                type="button"
+                className="rounded-full border border-border/70 bg-surface px-3 py-1 text-xs"
+              >
+                แก้ไข
+              </button>
             </div>
           ))}
         </div>

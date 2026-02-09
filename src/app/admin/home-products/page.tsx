@@ -1,8 +1,7 @@
 import Link from "next/link";
 import { getUserProfile, isAdmin } from "@/lib/auth";
-import { FeaturedProductsManager } from "@/components/admin/featured-products-manager";
 
-export default async function AdminFeaturedProductsPage() {
+export default async function AdminHomeProductsPage() {
   const { user, profile } = await getUserProfile();
 
   if (!user) {
@@ -34,15 +33,16 @@ export default async function AdminFeaturedProductsPage() {
   }
 
   return (
-    <div className="mx-auto flex w-full max-w-6xl flex-col gap-8 px-4 py-10 sm:px-6">
+    <div className="mx-auto flex w-full max-w-6xl flex-col gap-6 px-4 py-10 sm:px-6">
       <div className="flex flex-col gap-2">
         <h1 className="text-3xl font-semibold">กำหนดสินค้าหน้าแรก</h1>
         <p className="text-sm text-foreground/70">
-          เลือกสินค้าที่จะแสดงในหน้าแรก (ไม่จำกัดจำนวน)
+          เพิ่มรายการสินค้าที่ต้องการแสดงในหน้าแรก
         </p>
       </div>
-
-      <FeaturedProductsManager />
+      <div className="rounded-3xl border border-border/70 bg-surface p-6 text-sm text-foreground/70 shadow-sm">
+        พื้นที่นี้สำหรับกำหนดสินค้าแนะนำหน้าแรก (กำลังพัฒนา)
+      </div>
     </div>
   );
 }
