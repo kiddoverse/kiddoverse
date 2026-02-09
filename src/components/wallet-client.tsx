@@ -25,6 +25,9 @@ export function WalletClient({ balance }: { balance: number }) {
   const [history, setHistory] = useState<TopupHistoryItem[]>(seedHistory);
   const [activeTopupId, setActiveTopupId] = useState<string | null>(null);
   const [slipUploaded, setSlipUploaded] = useState(false);
+  const [step, setStep] = useState<1 | 2 | 3>(1);
+  const [lockedAmount, setLockedAmount] = useState<number | null>(null);
+  const [lockedMethod, setLockedMethod] = useState<TopupMethod | null>(null);
 
   useEffect(() => {
     if (method !== "promptpay") return;
@@ -56,6 +59,16 @@ export function WalletClient({ balance }: { balance: number }) {
   const sortedHistory = [...history].sort(
     (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
   );
+
+  const resetTopup = () => {
+    setStep(1);
+    setLockedAmount(null);
+    setLockedMethod(null);
+    setPromptpayStarted(false);
+    setActiveTopupId(null);
+    setSlipUploaded(false);
+    setMethod("promptpay");
+  };
 
   const createTopup = (payload: {
     amount: number;
@@ -115,12 +128,15 @@ export function WalletClient({ balance }: { balance: number }) {
 
   const handleContinueTopup = (item: TopupHistoryItem) => {
     setShowTopup(true);
+    setLockedAmount(item.amount);
+    setLockedMethod(item.method);
     setMethod(item.method);
     setAmount(item.amount);
     setCustomAmount("");
     setBankId(item.bankAccountId ?? bankAccounts[0]?.id ?? "");
     setSlipUploaded(Boolean(item.slipUploaded));
     setActiveTopupId(item.id);
+    setStep(3);
   };
 
   const handleCancelTopup = (id: string) => {
@@ -211,13 +227,16 @@ export function WalletClient({ balance }: { balance: number }) {
             <button
               type="button"
               onClick={() => {
-                if (method === "bank" && selectedBank && isValidAmount) {
+                if (lockedMethod === "bank" && selectedBank && isValidAmount) {
                   if (!activeTopupId) {
                     handleCreateBankPending();
+                    setShowTopup(false);
+                    resetTopup();
                     return;
                   }
                 }
                 setShowTopup(false);
+                resetTopup();
               }}
               className="absolute right-4 top-4 grid h-9 w-9 place-items-center rounded-full bg-surface-muted"
             >
@@ -225,38 +244,66 @@ export function WalletClient({ balance }: { balance: number }) {
             </button>
 
             <div className="grid gap-6 lg:grid-cols-[1.1fr_1fr]">
-              <div className="flex flex-col gap-4">
-                <h3 className="text-base font-semibold">เติมเงินเข้าวอลเล็ต</h3>
-
-                <div className="flex flex-wrap gap-2">
-                  {presets.map((preset) => (
-                    <button
-                      key={preset}
-                      type="button"
-                      onClick={() => {
-                        setAmount(preset);
-                        setCustomAmount("");
-                      }}
-                      className={cn(
-                        "rounded-2xl border px-4 py-2 text-sm font-semibold transition",
-                        amount === preset && !customAmount
-                          ? "border-primary bg-primary text-primary-foreground"
-                          : "border-border/70 bg-surface-muted text-foreground/70"
-                      )}
-                    >
-                      {preset} ฿
-                    </button>
-                  ))}
-                  <input
-                    value={customAmount}
-                    onChange={(event) => setCustomAmount(event.target.value)}
-                    placeholder="กำหนดเอง"
-                    className="w-28 rounded-2xl border border-border/70 bg-surface-muted px-3 py-2 text-sm outline-none"
-                  />
+              {step === 1 ? (
+                <div className="flex flex-col gap-4">
+                  <h3 className="text-base font-semibold">
+                    ขั้นตอน 1: เลือกยอดเติมเงิน
+                  </h3>
+                  <div className="flex flex-wrap gap-2">
+                    {presets.map((preset) => (
+                      <button
+                        key={preset}
+                        type="button"
+                        onClick={() => {
+                          setAmount(preset);
+                          setCustomAmount("");
+                        }}
+                        className={cn(
+                          "rounded-2xl border px-4 py-2 text-sm font-semibold transition",
+                          amount === preset && !customAmount
+                            ? "border-primary bg-primary text-primary-foreground"
+                            : "border-border/70 bg-surface-muted text-foreground/70"
+                        )}
+                      >
+                        {preset} ฿
+                      </button>
+                    ))}
+                    <input
+                      value={customAmount}
+                      onChange={(event) => setCustomAmount(event.target.value)}
+                      placeholder="กำหนดเอง"
+                      className="w-28 rounded-2xl border border-border/70 bg-surface-muted px-3 py-2 text-sm outline-none"
+                    />
+                  </div>
+                  {!isValidAmount ? (
+                    <p className="text-xs text-danger">
+                      กรุณากรอกยอดขั้นต่ำ 20 บาท
+                    </p>
+                  ) : null}
+                  <button
+                    type="button"
+                    disabled={!isValidAmount}
+                    onClick={() => {
+                      setLockedAmount(selectedAmount);
+                      setStep(2);
+                    }}
+                    className={cn(
+                      "mt-4 w-full rounded-full px-4 py-2 text-sm font-semibold transition",
+                      isValidAmount
+                        ? "bg-primary text-primary-foreground"
+                        : "bg-surface-muted text-foreground/60"
+                    )}
+                  >
+                    ยืนยันยอดเงิน
+                  </button>
                 </div>
+              ) : null}
 
-                <div className="flex flex-col gap-2 text-sm">
-                  <label className="font-semibold">ช่องทางชำระเงิน</label>
+              {step === 2 ? (
+                <div className="flex flex-col gap-4">
+                  <h3 className="text-base font-semibold">
+                    ขั้นตอน 2: เลือกช่องทางชำระเงิน
+                  </h3>
                   <div className="flex flex-wrap gap-2">
                     <button
                       type="button"
@@ -285,17 +332,36 @@ export function WalletClient({ balance }: { balance: number }) {
                       โอนผ่านธนาคาร
                     </button>
                   </div>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setLockedMethod(method);
+                      setStep(3);
+                    }}
+                    className="mt-4 w-full rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground"
+                  >
+                    ยืนยันช่องทางชำระเงิน
+                  </button>
                 </div>
+              ) : null}
 
-                {!isValidAmount ? (
-                  <p className="text-xs text-danger">
-                    กรุณากรอกยอดขั้นต่ำ 20 บาท
-                  </p>
-                ) : null}
-              </div>
+              {step === 3 ? (
+                <div className="flex flex-col gap-6 lg:col-span-2">
+                  <div className="rounded-2xl border border-border/70 bg-surface-muted p-4 text-sm">
+                    ยอดเติมเงิน:{" "}
+                    <span className="font-semibold">
+                      {lockedAmount?.toLocaleString("th-TH")} ฿
+                    </span>
+                    {" • "}
+                    ช่องทาง:{" "}
+                    <span className="font-semibold">
+                      {lockedMethod === "promptpay"
+                        ? "PromptPay"
+                        : "โอนผ่านธนาคาร"}
+                    </span>
+                  </div>
 
-              <div>
-                {method === "promptpay" ? (
+                  {lockedMethod === "promptpay" ? (
                   <div className="rounded-3xl border border-border/70 bg-surface p-6 shadow-sm">
                     <div className="flex items-center justify-between">
                       <h3 className="text-base font-semibold">PromptPay QR</h3>
@@ -336,7 +402,9 @@ export function WalletClient({ balance }: { balance: number }) {
                   </div>
                 ) : (
                   <div className="rounded-3xl border border-border/70 bg-surface p-6 shadow-sm">
-                    <h3 className="text-base font-semibold">เลือกบัญชีธนาคาร</h3>
+                    <h3 className="text-base font-semibold">
+                      เลือกบัญชีธนาคาร
+                    </h3>
                     <div className="mt-3 grid gap-3">
                       {bankAccounts.map((bank) => (
                         <button
@@ -406,7 +474,8 @@ export function WalletClient({ balance }: { balance: number }) {
                     ) : null}
                   </div>
                 )}
-              </div>
+                </div>
+              ) : null}
             </div>
           </div>
         </div>
