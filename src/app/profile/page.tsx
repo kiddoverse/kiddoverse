@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { PurchasedLibrary } from "@/components/purchased-library";
 import { getUserProfile } from "@/lib/auth";
+import { signOutAction } from "@/app/actions/auth";
 
 export default async function ProfilePage() {
   const { user, profile } = await getUserProfile();
@@ -44,6 +45,14 @@ export default async function ProfilePage() {
             </p>
           </div>
         </div>
+        <form action={signOutAction}>
+          <button
+            type="submit"
+            className="rounded-full border border-border/70 bg-surface px-4 py-2 text-sm font-semibold text-foreground/80 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
+          >
+            ออกจากระบบ
+          </button>
+        </form>
       </div>
 
       <section className="rounded-3xl border border-border/70 bg-surface p-6 shadow-sm">

@@ -1,16 +1,18 @@
 import Link from "next/link";
-import Image from "next/image";
-import { Bell, ShoppingCart, Wallet, User } from "lucide-react";
+import { Bell, ShoppingCart, Wallet } from "lucide-react";
 import { ThemeToggle } from "@/components/theme-toggle";
-import { getUserProfile } from "@/lib/auth";
+import { getUserProfile, isAdmin } from "@/lib/auth";
 import {
   getCartCount,
   getUnreadNotificationsCount,
   getWalletBalance,
 } from "@/lib/queries";
+import { ProfileMenu } from "@/components/profile-menu";
 
 export async function Header() {
   const { user, profile } = await getUserProfile();
+  const showAuth = Boolean(user);
+  const showAdmin = showAuth && isAdmin(profile);
   const walletBalance = user ? await getWalletBalance(user.id) : 0;
   const cartCount = user ? await getCartCount(user.id) : 0;
   const notifications = user ? await getUnreadNotificationsCount(user.id) : 0;
@@ -33,60 +35,60 @@ export async function Header() {
         <div className="flex items-center gap-3">
           <ThemeToggle />
 
-          <Link
-            href="/wallet"
-            className="hidden items-center gap-2 rounded-full border border-border/70 bg-surface px-3 py-2 text-sm shadow-sm transition hover:-translate-y-0.5 hover:shadow-md sm:flex"
-          >
-            <Wallet size={16} />
-            <span className="font-semibold">
-              {walletBalance.toLocaleString("th-TH")} ฿
-            </span>
-          </Link>
-
-          <Link
-            href="/notifications"
-            className="relative rounded-full border border-border/70 bg-surface p-2 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
-          >
-            <Bell size={18} />
-            {notifications > 0 ? (
-              <span className="absolute -right-1 -top-1 grid h-5 w-5 place-items-center rounded-full bg-danger text-xs text-white">
-                {notifications}
+          {showAuth ? (
+            <Link
+              href="/wallet"
+              className="hidden items-center gap-2 rounded-full border border-border/70 bg-surface px-3 py-2 text-sm shadow-sm transition hover:-translate-y-0.5 hover:shadow-md sm:flex"
+            >
+              <Wallet size={16} />
+              <span className="font-semibold">
+                {walletBalance.toLocaleString("th-TH")} ฿
               </span>
-            ) : null}
-          </Link>
+            </Link>
+          ) : null}
 
-          <Link
-            href="/cart"
-            className="relative rounded-full border border-border/70 bg-surface p-2 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
-          >
-            <ShoppingCart size={18} />
-            {cartCount > 0 ? (
-              <span className="absolute -right-1 -top-1 grid h-5 w-5 place-items-center rounded-full bg-primary text-xs text-white">
-                {cartCount}
-              </span>
-            ) : null}
-          </Link>
+          {showAuth ? (
+            <Link
+              href="/notifications"
+              className="relative rounded-full border border-border/70 bg-surface p-2 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
+            >
+              <Bell size={18} />
+              {notifications > 0 ? (
+                <span className="absolute -right-1 -top-1 grid h-5 w-5 place-items-center rounded-full bg-danger text-xs text-white">
+                  {notifications}
+                </span>
+              ) : null}
+            </Link>
+          ) : null}
 
-          <Link
-            href={user ? "/profile" : "/login"}
-            className="flex items-center gap-2 rounded-full border border-border/70 bg-surface px-3 py-2 text-sm shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
-          >
-            {user && profile?.avatar_url ? (
-              <span className="relative h-7 w-7 overflow-hidden rounded-full border border-border/70">
-                <Image
-                  src={profile.avatar_url}
-                  alt={profile.display_name ?? "Profile"}
-                  fill
-                  className="object-cover"
-                />
-              </span>
-            ) : (
-              <User size={16} />
-            )}
-            <span className="hidden sm:inline">
-              {user ? profile?.display_name ?? "โปรไฟล์" : "เข้าสู่ระบบ"}
-            </span>
-          </Link>
+          {showAuth ? (
+            <Link
+              href="/cart"
+              className="relative rounded-full border border-border/70 bg-surface p-2 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
+            >
+              <ShoppingCart size={18} />
+              {cartCount > 0 ? (
+                <span className="absolute -right-1 -top-1 grid h-5 w-5 place-items-center rounded-full bg-primary text-xs text-white">
+                  {cartCount}
+                </span>
+              ) : null}
+            </Link>
+          ) : null}
+
+          {showAuth ? (
+            <ProfileMenu
+              displayName={profile?.display_name ?? user?.email ?? "โปรไฟล์"}
+              avatarUrl={profile?.avatar_url ?? undefined}
+              role={profile?.role ?? "customer"}
+            />
+          ) : (
+            <Link
+              href="/login"
+              className="flex items-center gap-2 rounded-full border border-border/70 bg-surface px-3 py-2 text-sm shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
+            >
+              เข้าสู่ระบบ
+            </Link>
+          )}
         </div>
       </div>
     </header>
