@@ -1,6 +1,7 @@
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 import { createServerClient } from "@supabase/ssr";
+import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 
 export async function GET(request: Request) {
   const cookieStore = await cookies();
@@ -33,6 +34,24 @@ export async function GET(request: Request) {
       console.info("[AuthCallback] Session set", {
         hasUser: Boolean(data?.session?.user),
       });
+      const user = data?.session?.user;
+      if (user) {
+        const admin = createSupabaseAdminClient();
+        await admin.from("profiles").upsert(
+          {
+            id: user.id,
+            display_name:
+              (user.user_metadata?.name as string | undefined) ??
+              user.email ??
+              null,
+            avatar_url:
+              (user.user_metadata?.avatar_url as string | undefined) ??
+              (user.user_metadata?.picture as string | undefined) ??
+              null,
+          },
+          { onConflict: "id" }
+        );
+      }
     }
   }
 
