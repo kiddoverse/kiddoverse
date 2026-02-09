@@ -32,17 +32,31 @@ export const bankAccounts: BankAccount[] = [
 
 export const topupHistory = [
   {
-    id: "topup-1",
-    amount: 100,
+    id: "topup-4",
+    amount: 150,
+    method: "bank",
+    status: "รอดำเนินการ",
+    createdAt: "2026-02-06T10:30:00Z",
+  },
+  {
+    id: "topup-3",
+    amount: 80,
     method: "promptpay",
-    status: "สำเร็จ",
-    createdAt: "2026-02-01",
+    status: "ยกเลิกแล้ว",
+    createdAt: "2026-02-05T08:15:00Z",
   },
   {
     id: "topup-2",
     amount: 50,
     method: "bank",
-    status: "รอดำเนินการ",
-    createdAt: "2026-02-04",
+    status: "สำเร็จ",
+    createdAt: "2026-02-04T11:20:00Z",
+  },
+  {
+    id: "topup-1",
+    amount: 100,
+    method: "promptpay",
+    status: "สำเร็จ",
+    createdAt: "2026-02-01T09:10:00Z",
   },
 ];

@@ -15,16 +15,17 @@ export type CartItem = {
 };
 
 export function CartClient({ items }: { items: CartItem[] }) {
+  const [cartItems, setCartItems] = useState<CartItem[]>(items);
   const [selected, setSelected] = useState<string[]>(
     items.map((item) => item.id)
   );
 
   const total = useMemo(
     () =>
-      items
+      cartItems
         .filter((item) => selected.includes(item.id))
         .reduce((sum, item) => sum + (item.salePrice ?? item.price), 0),
-    [items, selected]
+    [cartItems, selected]
   );
 
   const toggle = (id: string) => {
@@ -33,10 +34,37 @@ export function CartClient({ items }: { items: CartItem[] }) {
     );
   };
 
+  const deleteSelected = () => {
+    setCartItems((prev) =>
+      prev.filter((item) => !selected.includes(item.id))
+    );
+    setSelected([]);
+  };
+
   return (
     <div className="grid gap-6 lg:grid-cols-[2fr_1fr]">
       <div className="flex flex-col gap-4">
-        {items.map((item) => (
+        <div className="flex flex-wrap items-center justify-between gap-3 rounded-3xl border border-border/70 bg-surface p-4 shadow-sm">
+          <div className="text-sm text-foreground/70">
+            เลือกแล้ว {selected.length} รายการ
+          </div>
+          <button
+            type="button"
+            onClick={deleteSelected}
+            disabled={selected.length === 0}
+            className={cn(
+              "inline-flex items-center gap-2 rounded-full px-4 py-2 text-xs font-semibold transition",
+              selected.length === 0
+                ? "bg-surface-muted text-foreground/50"
+                : "bg-danger/10 text-danger hover:-translate-y-0.5"
+            )}
+          >
+            <Trash2 size={14} />
+            ลบรายการที่เลือก
+          </button>
+        </div>
+
+        {cartItems.map((item) => (
           <div
             key={item.id}
             className={cn(
@@ -47,15 +75,27 @@ export function CartClient({ items }: { items: CartItem[] }) {
             <button
               type="button"
               onClick={() => toggle(item.id)}
-              className="relative h-28 w-28 overflow-hidden rounded-2xl"
+              className={cn(
+                "mt-1 h-6 w-6 flex-none rounded-full border-2 transition",
+                selected.includes(item.id)
+                  ? "border-primary bg-primary/20"
+                  : "border-border/70 bg-transparent"
+              )}
+              aria-label="เลือกสินค้า"
             >
+              {selected.includes(item.id) ? (
+                <span className="mx-auto block h-2.5 w-2.5 rounded-full bg-primary" />
+              ) : null}
+            </button>
+
+            <div className="relative h-28 w-28 flex-none overflow-hidden rounded-2xl">
               <Image
                 src={item.imageUrl}
                 alt={item.name}
                 fill
                 className="object-cover"
               />
-            </button>
+            </div>
 
             <div className="flex flex-1 flex-col gap-1">
               <span className="text-xs text-foreground/60">{item.category}</span>
@@ -70,28 +110,6 @@ export function CartClient({ items }: { items: CartItem[] }) {
                   </span>
                 ) : null}
               </div>
-            </div>
-
-            <div className="flex items-center justify-between gap-3 sm:flex-col sm:items-end">
-              <button
-                type="button"
-                onClick={() => toggle(item.id)}
-                className={cn(
-                  "rounded-full px-4 py-2 text-xs font-semibold transition",
-                  selected.includes(item.id)
-                    ? "bg-primary text-primary-foreground"
-                    : "bg-surface-muted text-foreground/70"
-                )}
-              >
-                {selected.includes(item.id) ? "เลือกแล้ว" : "เลือกชำระ"}
-              </button>
-              <button
-                type="button"
-                className="inline-flex items-center gap-1 text-xs text-danger"
-              >
-                <Trash2 size={14} />
-                ลบ
-              </button>
             </div>
           </div>
         ))}
