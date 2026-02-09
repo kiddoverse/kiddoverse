@@ -7,7 +7,7 @@ import {
   BarChart3,
   ChevronDown,
   Copy,
-  Image,
+  Image as ImageIcon,
   LifeBuoy,
   LogOut,
   Package,
@@ -181,7 +181,7 @@ export function ProfileMenu({
                     className="inline-flex items-center gap-2 rounded-lg px-2 py-1 text-sm text-foreground/80 transition hover:bg-primary/10 hover:text-primary"
                     onClick={() => setOpen(false)}
                   >
-                    <Image size={16} />
+                    <ImageIcon size={16} />
                     จัดการสไลด์
                   </Link>
                   <Link
