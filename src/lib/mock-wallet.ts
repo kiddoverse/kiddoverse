@@ -7,6 +7,19 @@ export type BankAccount = {
   qrUrl: string;
 };
 
+export type TopupStatus = "สำเร็จ" | "รอดำเนินการ" | "ยกเลิกแล้ว";
+export type TopupMethod = "promptpay" | "bank";
+
+export type TopupHistoryItem = {
+  id: string;
+  amount: number;
+  method: TopupMethod;
+  status: TopupStatus;
+  createdAt: string;
+  bankAccountId?: string | null;
+  slipUploaded?: boolean;
+};
+
 export const bankAccounts: BankAccount[] = [
   {
     id: "scb",
@@ -30,13 +43,15 @@ export const bankAccounts: BankAccount[] = [
   },
 ];
 
-export const topupHistory = [
+export const topupHistory: TopupHistoryItem[] = [
   {
     id: "topup-4",
     amount: 150,
     method: "bank",
     status: "รอดำเนินการ",
     createdAt: "2026-02-06T10:30:00Z",
+    bankAccountId: "scb",
+    slipUploaded: false,
   },
   {
     id: "topup-3",
@@ -51,6 +66,8 @@ export const topupHistory = [
     method: "bank",
     status: "สำเร็จ",
     createdAt: "2026-02-04T11:20:00Z",
+    bankAccountId: "kbank",
+    slipUploaded: true,
   },
   {
     id: "topup-1",

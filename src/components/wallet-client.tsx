@@ -3,7 +3,13 @@
 import Image from "next/image";
 import { useEffect, useMemo, useState } from "react";
 import { Clock, CreditCard, QrCode, Upload, X } from "lucide-react";
-import { bankAccounts, topupHistory } from "@/lib/mock-wallet";
+import {
+  bankAccounts,
+  topupHistory as seedHistory,
+  type TopupHistoryItem,
+  type TopupMethod,
+  type TopupStatus,
+} from "@/lib/mock-wallet";
 import { cn } from "@/lib/utils";
 
 const presets = [20, 50, 100, 150];
@@ -11,10 +17,14 @@ const presets = [20, 50, 100, 150];
 export function WalletClient({ balance }: { balance: number }) {
   const [amount, setAmount] = useState(20);
   const [customAmount, setCustomAmount] = useState("");
-  const [method, setMethod] = useState<"promptpay" | "bank">("promptpay");
+  const [method, setMethod] = useState<TopupMethod>("promptpay");
   const [bankId, setBankId] = useState(bankAccounts[0]?.id ?? "");
   const [countdown, setCountdown] = useState(300);
   const [showTopup, setShowTopup] = useState(false);
+  const [promptpayStarted, setPromptpayStarted] = useState(false);
+  const [history, setHistory] = useState<TopupHistoryItem[]>(seedHistory);
+  const [activeTopupId, setActiveTopupId] = useState<string | null>(null);
+  const [slipUploaded, setSlipUploaded] = useState(false);
 
   useEffect(() => {
     if (method !== "promptpay") return;
@@ -32,9 +42,90 @@ export function WalletClient({ balance }: { balance: number }) {
 
   const isValidAmount = useMemo(() => selectedAmount >= 20, [selectedAmount]);
 
-  const history = [...topupHistory].sort(
+  useEffect(() => {
+    const stored = window.localStorage.getItem("kiddoverse_topups");
+    if (stored) {
+      setHistory(JSON.parse(stored) as TopupHistoryItem[]);
+    }
+  }, []);
+
+  useEffect(() => {
+    window.localStorage.setItem("kiddoverse_topups", JSON.stringify(history));
+  }, [history]);
+
+  const sortedHistory = [...history].sort(
     (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
   );
+
+  const createTopup = (payload: {
+    amount: number;
+    method: TopupMethod;
+    status: TopupStatus;
+    bankAccountId?: string | null;
+    slipUploaded?: boolean;
+  }) => {
+    const newItem: TopupHistoryItem = {
+      id: `topup-${Date.now()}`,
+      amount: payload.amount,
+      method: payload.method,
+      status: payload.status,
+      createdAt: new Date().toISOString(),
+      bankAccountId: payload.bankAccountId ?? null,
+      slipUploaded: payload.slipUploaded ?? false,
+    };
+    setHistory((prev) => [newItem, ...prev]);
+    setActiveTopupId(newItem.id);
+    return newItem.id;
+  };
+
+  const updateTopup = (id: string, updates: Partial<TopupHistoryItem>) => {
+    setHistory((prev) =>
+      prev.map((item) => (item.id === id ? { ...item, ...updates } : item))
+    );
+  };
+
+  const handleStartPromptpay = () => {
+    if (!isValidAmount) return;
+    setPromptpayStarted(true);
+    const id = createTopup({
+      amount: selectedAmount,
+      method: "promptpay",
+      status: "รอดำเนินการ",
+    });
+    setTimeout(() => {
+      updateTopup(id, { status: "สำเร็จ" });
+      setShowTopup(false);
+      setPromptpayStarted(false);
+    }, 3000);
+  };
+
+  const handleCreateBankPending = () => {
+    if (!selectedBank || !isValidAmount) return;
+    const id = createTopup({
+      amount: selectedAmount,
+      method: "bank",
+      status: "รอดำเนินการ",
+      bankAccountId: selectedBank.id,
+      slipUploaded: slipUploaded,
+    });
+    setShowTopup(false);
+    setSlipUploaded(false);
+    return id;
+  };
+
+  const handleContinueTopup = (item: TopupHistoryItem) => {
+    setShowTopup(true);
+    setMethod(item.method);
+    setAmount(item.amount);
+    setCustomAmount("");
+    setBankId(item.bankAccountId ?? bankAccounts[0]?.id ?? "");
+    setSlipUploaded(Boolean(item.slipUploaded));
+    setActiveTopupId(item.id);
+  };
+
+  const handleCancelTopup = (id: string) => {
+    updateTopup(id, { status: "ยกเลิกแล้ว" });
+  };
 
   return (
     <div className="flex flex-col gap-6">
@@ -58,7 +149,7 @@ export function WalletClient({ balance }: { balance: number }) {
       <div className="rounded-3xl border border-border/70 bg-surface p-6 shadow-sm">
         <h3 className="text-base font-semibold">ประวัติการเติมเงิน</h3>
         <div className="mt-4 flex flex-col gap-3 text-sm">
-          {history.map((item) => {
+          {sortedHistory.map((item) => {
             const isPending = item.status === "รอดำเนินการ";
             const isCancelled = item.status === "ยกเลิกแล้ว";
             const statusClass = isPending
@@ -90,12 +181,14 @@ export function WalletClient({ balance }: { balance: number }) {
                   <div className="flex flex-wrap items-center gap-2">
                     <button
                       type="button"
+                      onClick={() => handleContinueTopup(item)}
                       className="rounded-full bg-primary px-4 py-2 text-xs font-semibold text-primary-foreground"
                     >
                       ดำเนินการต่อ
                     </button>
                     <button
                       type="button"
+                      onClick={() => handleCancelTopup(item.id)}
                       className="rounded-full border border-border/70 bg-surface px-3 py-2 text-xs font-semibold text-foreground/70"
                     >
                       ยกเลิกรายการ
@@ -117,7 +210,15 @@ export function WalletClient({ balance }: { balance: number }) {
           <div className="relative w-full max-w-4xl overflow-hidden rounded-3xl bg-surface p-6 shadow-xl">
             <button
               type="button"
-              onClick={() => setShowTopup(false)}
+              onClick={() => {
+                if (method === "bank" && selectedBank && isValidAmount) {
+                  if (!activeTopupId) {
+                    handleCreateBankPending();
+                    return;
+                  }
+                }
+                setShowTopup(false);
+              }}
               className="absolute right-4 top-4 grid h-9 w-9 place-items-center rounded-full bg-surface-muted"
             >
               <X size={18} />
@@ -217,6 +318,21 @@ export function WalletClient({ balance }: { balance: number }) {
                       {selectedAmount.toLocaleString("th-TH")} ฿ ระบบจะตรวจสอบ
                       อัตโนมัติภายใน 5 นาที
                     </p>
+                    <button
+                      type="button"
+                      onClick={handleStartPromptpay}
+                      disabled={!isValidAmount || promptpayStarted}
+                      className={cn(
+                        "mt-4 w-full rounded-full px-4 py-2 text-sm font-semibold transition",
+                        promptpayStarted
+                          ? "bg-surface-muted text-foreground/60"
+                          : "bg-primary text-primary-foreground"
+                      )}
+                    >
+                      {promptpayStarted
+                        ? "กำลังตรวจสอบยอด..."
+                        : "ยืนยันและเริ่มตรวจสอบยอด"}
+                    </button>
                   </div>
                 ) : (
                   <div className="rounded-3xl border border-border/70 bg-surface p-6 shadow-sm">
@@ -263,10 +379,28 @@ export function WalletClient({ balance }: { balance: number }) {
                         </div>
                         <button
                           type="button"
+                          onClick={() => setSlipUploaded(true)}
                           className="mt-4 inline-flex items-center gap-2 rounded-full bg-primary px-4 py-2 text-xs font-semibold text-primary-foreground"
                         >
                           <Upload size={14} />
-                          อัปโหลดสลิปโอน
+                          {slipUploaded ? "อัปโหลดแล้ว" : "อัปโหลดสลิปโอน"}
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            if (activeTopupId) {
+                              updateTopup(activeTopupId, {
+                                slipUploaded: slipUploaded,
+                                bankAccountId: selectedBank.id,
+                              });
+                              setShowTopup(false);
+                              return;
+                            }
+                            handleCreateBankPending();
+                          }}
+                          className="mt-3 w-full rounded-full border border-border/70 bg-surface px-4 py-2 text-xs font-semibold text-foreground/80"
+                        >
+                          ยืนยันการทำรายการ
                         </button>
                       </div>
                     ) : null}
