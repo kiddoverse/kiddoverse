@@ -76,7 +76,7 @@ export default async function AdminProductsPage() {
                     </span>
                     <span>•</span>
                     <span className="rounded-full bg-success/15 px-2 py-0.5 text-success">
-                      {product.status === "available" ? "เปิดใช้งาน" : "ปิดใช้งาน"}
+                      {product.status != null ? "เปิดใช้งาน" : "ปิดใช้งาน"}
                     </span>
                   </div>
                 </div>
